@@ -1,0 +1,83 @@
+esphome:
+  name: luftungspitzboden
+  platform: ESP8266
+  board: esp12e
+
+wifi:
+  ssid: "buttersIOT"
+  password: "53a7de36b0d2244fa59056227b"
+  power_save_mode: high
+  domain: .butters.iot
+  fast_connect: on
+  manual_ip:
+    static_ip: 192.168.10.106
+    gateway: 192.168.10.1
+    subnet: 255.255.255.0
+    dns1: 192.168.10.1
+
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 0s
+  services:
+    - service: control_servo
+      variables:
+        level: float
+      then:
+        - servo.write:
+            id: my_servo
+            level: !lambda 'return level / 100.0;'
+ota:
+
+web_server:
+  port: 80
+
+#mqtt:
+#  broker: 192.168.234.40
+  
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal Luftung Spitzboden"
+    update_interval: 60s
+  - platform: pulse_counter
+    pin:
+      number: 12
+      inverted: false
+      mode: INPUT
+    name: "Inlet Fan RPM"
+    unit_of_measurement: 'RPM'
+    filters:
+      - multiply: 0.25
+    count_mode:
+      rising_edge: INCREMENT
+      falling_edge: DISABLE
+    update_interval: 30s
+    internal_filter: 1us
+    
+output:
+  - platform: esp8266_pwm
+    pin: 10
+    frequency: 500 Hz
+    id: pwm_output    
+  - platform: esp8266_pwm
+    id: pwm_inlet_shutter
+    pin: 5
+    frequency: 50 Hz    
+
+fan:
+  - platform: speed
+    output: pwm_output
+    name: "Inlet Fan"
+    
+servo:
+  - id: my_servo
+    output: pwm_inlet_shutter
+    
+switch:
+  - platform: restart
+    name: "Lüftung Spitzboden Restart"

@@ -1,0 +1,221 @@
+substitutions:
+  device_name: testesp8211
+  device_ip: 192.168.10.149
+
+esphome:
+  name: ${device_name}
+  platform: ESP8266
+  board: esp12e
+
+wifi:
+  ssid: buttersIOT
+  password: 53a7de36b0d2244fa59056227b
+  power_save_mode: high
+  domain: .butters.iot
+  manual_ip:
+    static_ip: ${device_ip}
+    gateway: 192.168.10.1
+    subnet: 255.255.255.0
+
+  
+api:
+#  reboot_timeout: 15min
+  password: ZNMyUA9crUGhWLPMUFhc
+
+
+
+ota:
+
+web_server:
+
+logger:
+
+i2c:
+  sda: GPIO4
+  scl: GPIO5
+  scan: True
+
+uart:
+#  - id: uart_bus
+#    tx_pin: GPIO18
+#    rx_pin: GPIO19
+#    baud_rate: 2400
+  - id: uart_bus1
+    tx_pin: GPIO13
+    rx_pin: GPIO12
+    baud_rate: 2400
+
+
+pca9685:
+  - frequency: 50
+    id: servocontroller0
+  - frequency: 1525
+    id: fancontroller0
+    address: 0x41
+  
+# Individual outputs
+output:
+  - platform: pca9685
+    pca9685_id: 'servocontroller0'
+    channel: 0
+    id: pwmchannel0
+  - platform: pca9685
+    pca9685_id: 'servocontroller0'
+    channel: 1
+    id: pwmchannel1
+  - platform: pca9685
+    pca9685_id: 'servocontroller0'
+    channel: 2
+    id: pwmchannel2
+  - platform: pca9685
+    pca9685_id: 'fancontroller0'
+    channel: 0
+    id: fanchannel0
+  - platform: pca9685
+    pca9685_id: 'fancontroller0'
+    channel: 1
+    id: fanchannel1
+    
+servo:
+  - id: test_servo0
+    output: pwmchannel0    
+    min_level: 2%
+    max_level: 13%
+    restore: true
+  - id: test_servo1
+    output: pwmchannel1
+    min_level: 2%
+    max_level: 13%
+    restore: true
+  - id: test_servo2
+    output: pwmchannel2
+    min_level: 2%
+    max_level: 13%
+    restore: true
+    
+    
+cover:
+  - platform: template
+    name: "Test Servo Cover"
+    id: test_servo_cover0
+    optimistic: true
+    stop_action:
+      - output.turn_off:
+          id: pwmchannel0
+    open_action:
+      - servo.write:
+          id: test_servo0
+          level: 1.0
+    close_action:
+      - servo.write:
+          id: test_servo0
+          level: -1.0
+    has_position: true
+    position_action:
+      servo.write:
+        id: test_servo0
+        level: !lambda |-
+          return (pos-0.5)*2.0;
+  - platform: template
+    name: "Test Servo Cover 1"
+    id: test_servo_cover1
+    optimistic: true
+    stop_action:
+      - output.turn_off:
+          id: pwmchannel1
+    open_action:
+      - servo.write:
+          id: test_servo1
+          level: 1.0
+    close_action:
+      - servo.write:
+          id: test_servo1
+          level: -1.0
+    has_position: true
+    position_action:
+      servo.write:
+        id: test_servo1
+        level: !lambda |-
+          return (pos-0.5)*2.0;
+  - platform: template
+    name: "Test Servo Cover 2"
+    id: test_servo_cover2
+    optimistic: true
+    stop_action:
+      - output.turn_off:
+          id: pwmchannel2
+    open_action:
+      - servo.write:
+          id: test_servo2
+          level: 1.0
+    close_action:
+      - servo.write:
+          id: test_servo2
+          level: -1.0
+    has_position: true
+    position_action:
+      servo.write:
+        id: test_servo2
+        level: !lambda |-
+          return (pos-0.5)*2.0;
+
+  - platform: template
+    name: "Test Fan Cover "
+    id: test_fan_cover0
+    optimistic: true
+    stop_action:
+      - output.set_level:
+          id: fanchannel0
+          level: 0%
+    open_action:
+      - output.set_level:
+          id: fanchannel0
+          level: 100%
+    close_action:
+      - output.set_level:
+          id: fanchannel0
+          level: 0%
+    has_position: true
+    position_action:
+      output.set_level:
+        id: fanchannel0
+        level: !lambda |-
+          return pos;
+
+  - platform: template
+    name: "Test Fan Cover 1"
+    id: test_fan_cover1
+    optimistic: true
+    stop_action:
+      - output.set_level:
+          id: fanchannel1
+          level: 0%
+    open_action:
+      - output.set_level:
+          id: fanchannel1
+          level: 100%
+    close_action:
+      - output.set_level:
+          id: fanchannel1
+          level: 0%
+    has_position: true
+    position_action:
+      output.set_level:
+        id: fanchannel1
+        level: !lambda |-
+          return pos;
+
+sensor:
+  - platform: wifi_signal
+    name: "${device_name} WiFi Signal Sensor"
+    update_interval: 60s
+  - platform: pulse_counter
+    pin: 12
+    name: "Pulse Counter"
+  - platform: pip4048
+    id: inverter0
+    battery_voltage:
+      id: bat
+      name: bat voltage
+    input_voltage:
+      id: inv        

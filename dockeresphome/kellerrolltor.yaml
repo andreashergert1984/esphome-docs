@@ -1,0 +1,41 @@
+esphome:
+  name: kellerrolltor
+  platform: ESP8266
+  board: esp12e
+
+wifi:
+  ssid: "buttersIOT"
+  password: "53a7de36b0d2244fa59056227b"
+  power_save_mode: high
+  domain: .butters.iot
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Kellerrolltor Fallback Hotspot"
+    password: "6R7UWeKhVkQO"
+
+captive_portal:
+
+logger:
+  baud_rate: 0
+  level: VERBOSE
+  logs:
+    mqtt.component: DEBUG
+    mqtt.client: ERROR
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 0s
+
+ota:
+
+web_server:
+  port: 80
+
+mqtt:
+  broker: 192.168.234.40
+
+sensor:
+  - platform: wifi_signal
+    name: "Keller Rolltor WiFi Signal Sensor"
+    update_interval: 60s

@@ -1,0 +1,551 @@
+substitutions:
+  device_name: pvinverter
+  device_ip: 192.168.10.145
+
+esphome:
+  name: ${device_name}
+  platform: ESP32
+#  board: esp-wrover-kit
+  board: esp32dev
+  includes:
+    - pip4048.h
+
+wifi:
+  ssid: "buttersIOT"
+  password: "53a7de36b0d2244fa59056227b"
+  power_save_mode: high
+  domain: .butters.iot
+  manual_ip:
+    static_ip: ${device_ip}
+    gateway: 192.168.10.1
+    subnet: 255.255.255.0
+    
+# Enable logging
+logger:
+  level: NONE
+#  baud_rate: 0
+# Enable Home Assistant API
+api:
+  reboot_timeout: 0min
+  password: ZNMyUA9crUGhWLPMUFhc
+ota:
+
+uart:
+  - id: uart_bus
+    tx_pin: GPIO18
+    rx_pin: GPIO19
+    baud_rate: 2400
+  - id: uart_bus1
+    tx_pin: GPIO13
+    rx_pin: GPIO12
+    baud_rate: 2400
+  
+#web_server:
+#  port: 80
+  
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+    timezone: Europe/Berlin
+    
+
+
+sensor:
+  - platform: uptime
+    name: ${device_name} Uptime Sensor
+  - platform: wifi_signal
+    name: "${device_name} WiFi Signal Sensor"
+    update_interval: 60s
+    
+  - platform: total_daily_energy
+    name: "Inverter Total Out Power 0"
+    power_id: Load_watt0    
+
+  - platform: total_daily_energy
+    name: "Inverter Total Grid Power"
+    power_id: Inverter_grid_power0    
+    
+  - platform: template
+    name: "Inverter Grid Power"
+    id: Inverter_grid_power0
+    unit_of_measurement: "W"
+
+###  - platform: template
+#    name: "Inverter PV IN Power"
+#    id: Inverter_pv_in_power
+#    unit_of_measurement: "W"
+  
+  - platform: total_daily_energy
+    name: "Inverter Total PV Power"
+    power_id: Inverter_pv_power0    
+
+#  - platform: total_daily_energy
+#    name: "Inverter Total PV IN Power"
+#    power_id: Inverter_pv_in_power   
+    
+  - platform: template
+    name: "Inverter PV Power"
+    id: Inverter_pv_power0
+    unit_of_measurement: "W"
+    
+#  - platform: total_daily_energy
+#    name: "Inverter Total PV Input Power 0"
+#    power_id: PV_in_watts0    
+    
+
+  - platform: template
+    id: Inverter_mode0
+    name: "Inverter mode 0"
+    lambda: "return {};"
+  - name: "AC grid voltage 0"
+    id: AC_grid_voltage0
+    platform: template
+    unit_of_measurement: "V"
+    lambda: "return {};"
+  - name: "AC grid frequency 0"
+    id: AC_grid_frequency0
+    platform: template
+    unit_of_measurement: "Hz"
+    lambda: "return {};"
+  - name: "AC out voltage 0"
+    id: AC_out_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "AC out frequency 0"
+    id: AC_out_frequency0
+    unit_of_measurement: "Hz"
+    platform: template
+    lambda: "return {};"
+  - name: "PV in voltage 0"
+    id: PV_in_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "PV in current 0"
+    id: PV_in_current0
+    unit_of_measurement: "A"
+    platform: template
+    lambda: "return {};"
+  - name: "PV in watts 0"
+    id: PV_in_watts0
+    unit_of_measurement: "W"
+    platform: template
+    lambda: "return {};"
+#    on_value:
+#      then:
+#        - sensor.template.publish:
+#            id: Inverter_pv_in_power
+#            state: !lambda |-
+#                return id(PV_in_watts0).state+id(PV_in_watts1).state;
+  - name: "SCC voltage 0"
+    id: SCC_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Load pct 0"
+    id: Load_pct0
+    unit_of_measurement: "%"
+    platform: template
+    lambda: "return {};"
+  - name: "Load_watt 0"
+    id: Load_watt0
+    unit_of_measurement: "W"
+    platform: template
+    lambda: "return {};"
+    on_value:
+      then:
+        - sensor.template.publish:
+            id: Inverter_grid_power0
+#            state: !lambda 'return 42.0;'
+            state: !lambda |-
+              if (id(MODE0).state == "L" || id(MODE1).state == "L") {
+                return id(Load_watt0).state+id(Load_watt0).state;
+              } else {
+                return 0.0;
+              }
+        - sensor.template.publish:
+            id: Inverter_pv_power0
+#            state: !lambda 'return 42.0;'
+            state: !lambda |-
+              if (id(MODE0).state != "L" && id(MODE1).state != "L") {
+                return id(Load_watt0).state+id(Load_watt0).state;
+              } else {
+                return 0.0;
+              }
+
+  - name: "Load va 0"
+    id: Load_va0
+    unit_of_measurement: "VA"
+    platform: template
+    lambda: "return {};"
+  - name: "Bus voltage 0"
+    id: Bus_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Heatsink temperature 0"
+    id: Heatsink_temperature0
+    unit_of_measurement: "°C"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery capacity 0"
+    id: Battery_capacity0
+    unit_of_measurement: "%"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery voltage 0"
+    id: Battery_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery charge current 0"
+    id: Battery_charge_current0
+    unit_of_measurement: "A"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery discharge current 0"
+    id: Battery_discharge_current0
+    unit_of_measurement: "A"
+    platform: template
+    lambda: "return {};"
+  - name: "Load_status_on 0"
+    id: Load_status_on0
+    platform: template
+    lambda: "return {};"
+  - name: "charge on 0"
+    id: Charge_on0
+    platform: template
+    lambda: "return {};"
+  - name: "SCC charge on 0"
+    id: SCC_charge_on0
+    platform: template
+    lambda: "return {};"
+  - name: "AC charge on 0"
+    id: AC_charge_on0
+    platform: template
+    lambda: "return {};"
+  - name: "Battery recharge voltage 0"
+    id: Battery_recharge_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery under voltage 0"
+    id: Battery_under_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery bulk voltage 0"
+    id: Battery_bulk_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery float voltage 0"
+    id: Battery_float_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Max grid charge current 0"
+    id: Max_grid_charge_current0
+    unit_of_measurement: "A"
+    platform: template
+    lambda: "return {};"
+  - name: "Max charge current 0"
+    id: Max_charge_current0
+    platform: template
+    lambda: "return {};"
+  - name: "Out source priority 0"
+    id: Out_source_priority0
+    platform: template
+    lambda: "return {};"
+  - name: "Charger source priority 0"
+    id: Charger_source_priority0
+    platform: template
+    lambda: "return {};"
+  - name: "Warnings 0"
+    id: Warnings0
+    platform: template
+    lambda: "return {};"
+
+
+
+
+
+    
+  - platform: total_daily_energy
+    name: "Inverter Total Out Power 1"
+    power_id: Load_watt1    
+  - platform: total_daily_energy
+    name: "Inverter Total PV Input Power 1"
+    power_id: PV_in_watts1    
+  - platform: template
+    id: Inverter_mode1
+    name: "Inverter mode 1"
+    lambda: "return {};"
+  - name: "AC grid voltage 1"
+    id: AC_grid_voltage1
+    platform: template
+    unit_of_measurement: "V"
+    lambda: "return {};"
+  - name: "AC grid frequency 1"
+    id: AC_grid_frequency1
+    platform: template
+    unit_of_measurement: "Hz"
+    lambda: "return {};"
+  - name: "AC out voltage 1"
+    id: AC_out_voltage1
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "AC out frequency 1"
+    id: AC_out_frequency1
+    unit_of_measurement: "Hz"
+    platform: template
+    lambda: "return {};"
+  - name: "PV in voltage 1"
+    id: PV_in_voltage1
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "PV in current 1"
+    id: PV_in_current1
+    unit_of_measurement: "A"
+    platform: template
+    lambda: "return {};"
+  - name: "PV in watts 1"
+    id: PV_in_watts1
+    unit_of_measurement: "W"
+    platform: template
+    lambda: "return {};"
+#    on_value:
+#      then:
+#        - sensor.template.publish:
+#            id: Inverter_pv_in_power
+#            state: !lambda |-
+#                return id(PV_in_watts0).state+id(PV_in_watts1).state;
+  - name: "SCC voltage 1"
+    id: SCC_voltage1
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Load pct 1"
+    id: Load_pct1
+    unit_of_measurement: "%"
+    platform: template
+    lambda: "return {};"
+  - name: "Load_watt 1"
+    id: Load_watt1
+    unit_of_measurement: "W"
+    platform: template
+    lambda: "return {};"
+    on_value:
+      then:
+        - sensor.template.publish:
+            id: Inverter_grid_power0
+#            state: !lambda 'return 42.0;'
+            state: !lambda |-
+              if (id(MODE0).state == "L" || id(MODE1).state == "L") {
+                return id(Load_watt0).state+id(Load_watt0).state;
+              } else {
+                return 0.0;
+              }
+        - sensor.template.publish:
+            id: Inverter_pv_power0
+#            state: !lambda 'return 42.0;'
+            state: !lambda |-
+              if (id(MODE0).state != "L" && id(MODE1).state != "L") {
+                return id(Load_watt0).state+id(Load_watt0).state;
+              } else {
+                return 0.0;
+              }
+  - name: "Load va 1"
+    id: Load_va1
+    unit_of_measurement: "VA"
+    platform: template
+    lambda: "return {};"
+  - name: "Bus voltage 1"
+    id: Bus_voltage1
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Heatsink temperature 1"
+    id: Heatsink_temperature1
+    unit_of_measurement: "°C"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery capacity 1"
+    id: Battery_capacity1
+    unit_of_measurement: "%"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery voltage 1"
+    id: Battery_voltage1
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery charge current 1"
+    id: Battery_charge_current1
+    unit_of_measurement: "A"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery discharge current 1"
+    id: Battery_discharge_current1
+    unit_of_measurement: "A"
+    platform: template
+    lambda: "return {};"
+  - name: "Load_status_on 1"
+    id: Load_status_on1
+    platform: template
+    lambda: "return {};"
+  - name: "charge on 1"
+    id: Charge_on1
+    platform: template
+    lambda: "return {};"
+  - name: "SCC charge on 1"
+    id: SCC_charge_on1
+    platform: template
+    lambda: "return {};"
+  - name: "AC charge on 1"
+    id: AC_charge_on1
+    platform: template
+    lambda: "return {};"
+  - name: "Battery recharge voltage 1"
+    id: Battery_recharge_voltage1
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery under voltage 1"
+    id: Battery_under_voltage1
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery bulk voltage 1"
+    id: Battery_bulk_voltage1
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery float voltage 1"
+    id: Battery_float_voltage1
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Max grid charge current 1"
+    id: Max_grid_charge_current1
+    unit_of_measurement: "A"
+    platform: template
+    lambda: "return {};"
+  - name: "Max charge current 1"
+    id: Max_charge_current1
+    platform: template
+    lambda: "return {};"
+  - name: "Out source priority 1"
+    id: Out_source_priority1
+    platform: template
+    lambda: "return {};"
+  - name: "Charger source priority 1"
+    id: Charger_source_priority1
+    platform: template
+    lambda: "return {};"
+  - name: "Warnings 1"
+    id: Warnings1
+    platform: template
+    lambda: "return {};"    
+
+
+    
+text_sensor:
+  - name: "Last QPIGS 0"
+    id: QPIGS0
+    platform: template
+    lambda: "return {};"  
+  - name: "Last QPIGS 1"
+    id: QPIGS1
+    platform: template
+    lambda: "return {};"  
+  - name: "Last QPIRI 0"
+    id: QPIRI0
+    platform: template
+    lambda: "return {};"  
+  - name: "Last QPIRI 1"
+    id: QPIRI1
+    platform: template
+    lambda: "return {};"    
+  - name: "Last QMOD 0"
+    id: QMOD0
+    platform: template
+    lambda: "return {};"  
+  - name: "Last QMOD 1"
+    id: QMOD1
+    platform: template
+    lambda: "return {};"  
+  - name: "Mode 0"
+    id: MODE0
+    platform: template
+    lambda: "return {};" 
+  - name: "Mode 1"
+    id: MODE1
+    platform: template
+    lambda: "return {};" 
+custom_component:
+- lambda: "
+    auto my_inverter0 = new Pip4048(id(uart_bus),
+       id(QPIGS0),
+        id(AC_grid_voltage0),
+        id(AC_grid_frequency0),
+        id(AC_out_voltage0),
+        id(AC_out_frequency0),
+        id(Load_va0),
+        id(Load_watt0),
+        id(Load_pct0),
+        id(Bus_voltage0),
+        id(Battery_voltage0),
+        id(Battery_charge_current0),
+        id(Battery_capacity0),
+        id(Heatsink_temperature0),
+        id(PV_in_current0),
+        id(PV_in_voltage0),
+        id(SCC_voltage0),
+        id(Battery_discharge_current0),
+        id(Load_status_on0),
+        id(Charge_on0),
+        id(SCC_charge_on0),
+        id(AC_charge_on0),
+        id(PV_in_watts0),
+        id(QPIRI0),
+        id(QMOD0),
+        id(MODE0)
+        
+        );
+    App.register_component(my_inverter0);
+    return {my_inverter0};"
+- lambda: "
+    auto my_inverter1 = new Pip4048(id(uart_bus1),
+        id(QPIGS1),
+        id(AC_grid_voltage1),
+        id(AC_grid_frequency1),
+        id(AC_out_voltage1),
+        id(AC_out_frequency1),
+        id(Load_va1),
+        id(Load_watt1),
+        id(Load_pct1),
+        id(Bus_voltage1),
+        id(Battery_voltage1),
+        id(Battery_charge_current1),
+        id(Battery_capacity1),
+        id(Heatsink_temperature1),
+        id(PV_in_current1),
+        id(PV_in_voltage1),
+        id(SCC_voltage1),
+        id(Battery_discharge_current1),
+        id(Load_status_on1),
+        id(Charge_on1),
+        id(SCC_charge_on1),
+        id(AC_charge_on1),
+        id(PV_in_watts1),
+        id(QPIRI1),
+        id(QMOD1),
+        id(MODE1)
+
+        );
+    App.register_component(my_inverter1);    
+    return {my_inverter1};"

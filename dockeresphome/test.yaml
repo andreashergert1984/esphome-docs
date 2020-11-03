@@ -1,0 +1,218 @@
+substitutions:
+  device_name: pvinverter
+  device_ip: 192.168.10.145
+
+esphome:
+  name: ${device_name}
+  platform: ESP8266
+  board: esp12e
+  includes:
+    - pip4048.h
+
+wifi:
+  ssid: "buttersIOT"
+  password: "53a7de36b0d2244fa59056227b"
+  power_save_mode: high
+  domain: .butters.iot
+  manual_ip:
+    static_ip: ${device_ip}
+    gateway: 192.168.10.1
+    subnet: 255.255.255.0
+    
+captive_portal:
+
+# Enable logging
+logger:
+  baud_rate: 0
+# Enable Home Assistant API
+api:
+
+ota:
+
+uart:
+  id: uart_bus
+  tx_pin: 1
+  rx_pin: 3
+  baud_rate: 2400
+
+sensor:
+  - platform: template
+    id: Inverter_mode0
+    name: "Inverter mode 0"
+    lambda: "return {};"
+  - name: "AC grid voltage 0"
+    id: AC_grid_voltage0
+    platform: template
+    unit_of_measurement: "V"
+    lambda: "return {};"
+  - name: "AC grid frequency 0"
+    id: AC_grid_frequency0
+    platform: template
+    unit_of_measurement: "Hz"
+    lambda: "return {};"
+  - name: "AC out voltage 0"
+    id: AC_out_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "AC out frequency 0"
+    id: AC_out_frequency0
+    unit_of_measurement: "Hz"
+    platform: template
+    lambda: "return {};"
+  - name: "PV in voltage 0"
+    id: PV_in_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "PV in current 0"
+    id: PV_in_current0
+    unit_of_measurement: "A"
+    platform: template
+    lambda: "return {};"
+  - name: "PV in watts 0"
+    id: PV_in_watts0
+    unit_of_measurement: "W"
+    platform: template
+    lambda: "return {};"
+  - name: "SCC voltage 0"
+    id: SCC_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Load pct 0"
+    id: Load_pct0
+    unit_of_measurement: "%"
+    platform: template
+    lambda: "return {};"
+  - name: "Load_watt 0"
+    id: Load_watt0
+    unit_of_measurement: "W"
+    platform: template
+    lambda: "return {};"
+  - name: "Load va 0"
+    id: Load_va0
+    unit_of_measurement: "VA"
+    platform: template
+    lambda: "return {};"
+  - name: "Bus voltage 0"
+    id: Bus_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Heatsink temperature 0"
+    id: Heatsink_temperature0
+    unit_of_measurement: "°C"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery capacity 0"
+    id: Battery_capacity0
+    unit_of_measurement: "%"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery voltage 0"
+    id: Battery_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery charge current 0"
+    id: Battery_charge_current0
+    unit_of_measurement: "A"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery discharge current 0"
+    id: Battery_discharge_current0
+    unit_of_measurement: "A"
+    platform: template
+    lambda: "return {};"
+  - name: "Load_status_on 0"
+    id: Load_status_on0
+    platform: template
+    lambda: "return {};"
+  - name: "SCC charge on 0"
+    id: SCC_charge_on0
+    platform: template
+    lambda: "return {};"
+  - name: "AC charge on 0"
+    id: AC_charge_on0
+    platform: template
+    lambda: "return {};"
+  - name: "Battery recharge voltage 0"
+    id: Battery_recharge_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery under voltage 0"
+    id: Battery_under_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery bulk voltage 0"
+    id: Battery_bulk_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Battery float voltage 0"
+    id: Battery_float_voltage0
+    unit_of_measurement: "V"
+    platform: template
+    lambda: "return {};"
+  - name: "Max grid charge current 0"
+    id: Max_grid_charge_current0
+    unit_of_measurement: "A"
+    platform: template
+    lambda: "return {};"
+  - name: "Max charge current 0"
+    id: Max_charge_current0
+    platform: template
+    lambda: "return {};"
+  - name: "Out source priority 0"
+    id: Out_source_priority0
+    platform: template
+    lambda: "return {};"
+  - name: "Charger source priority 0"
+    id: Charger_source_priority0
+    platform: template
+    lambda: "return {};"
+  - name: "Warnings 0"
+    id: Warnings0
+    platform: template
+    lambda: "return {};"
+
+
+custom_component:
+- lambda: |-
+    auto my_inverter0 = new Pip4048(id(uart_bus),
+      id(Inverter_mode0),
+      id(AC_grid_voltage0),
+      id(AC_grid_frequency0),
+      id(AC_out_voltage0),
+      id(AC_out_frequency0),
+      id(PV_in_voltage0),
+      id(PV_in_current0),
+      id(PV_in_watts0),
+      id(SCC_voltage0),
+      id(Load_pct0),
+      id(Load_watt0),
+      id(Load_va0),
+      id(Bus_voltage0),
+      id(Heatsink_temperature0),
+      id(Battery_capacity0),
+      id(Battery_voltage0),
+      id(Battery_charge_current0),
+      id(Battery_discharge_current0),
+      id(Load_status_on0),
+      id(SCC_charge_on0),
+      id(AC_charge_on0),
+      id(Battery_recharge_voltage0),
+      id(Battery_under_voltage0),
+      id(Battery_bulk_voltage0),
+      id(Battery_float_voltage0),
+      id(Max_grid_charge_current0),
+      id(Max_charge_current0),
+      id(Out_source_priority0),
+      id(Charger_source_priority0),
+      id(Warnings0)
+      );
+    App.register_component(my_inverter0);
+    return {my_inverter0};

@@ -1,0 +1,44 @@
+substitutions:
+  device_name: irtest
+  device_ip: 192.168.10.148
+
+esphome:
+  name: ${device_name}
+  platform: ESP8266
+  board: esp_wroom_02
+
+wifi:
+  ssid: buttersIOT
+  password: 53a7de36b0d2244fa59056227b
+  power_save_mode: high
+  domain: .butters.iot
+  manual_ip:
+    static_ip: ${device_ip}
+    gateway: 192.168.10.1
+    subnet: 255.255.255.0
+
+  
+api:
+  reboot_timeout: 15min
+  password: ZNMyUA9crUGhWLPMUFhc
+
+
+sensor:
+  - platform: wifi_signal
+    name: "${device_name} WiFi Signal Sensor"
+    update_interval: 60s
+
+ota:
+
+remote_transmitter:
+  pin: GPIO13
+  # Infrared remotes use a 50% carrier signal
+  carrier_duty_percent: 50%
+
+switch:
+  - platform: template
+    name: Samsung Power Button
+    turn_on_action:
+      - remote_transmitter.transmit_panasonic:
+          address: 0x4004
+          command: 0x8140DFA2

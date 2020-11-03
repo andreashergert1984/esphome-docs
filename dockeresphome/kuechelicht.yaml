@@ -1,0 +1,79 @@
+substitutions:
+  device_name: kuechelicht
+  device_ip: 192.168.10.116
+
+esphome:
+  name: ${device_name}
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: buttersIOT
+  password: 53a7de36b0d2244fa59056227b
+  power_save_mode: high
+  domain: .butters.iot
+  manual_ip:
+    static_ip: ${device_ip}
+    gateway: 192.168.10.1
+    subnet: 255.255.255.0
+
+  
+api:
+  reboot_timeout: 15min
+  password: ZNMyUA9crUGhWLPMUFhc
+
+
+binary_sensor:
+  - platform: gpio
+    pin: GPIO00
+    id: reset
+    internal: true
+    filters:
+      - invert:
+      - delayed_off: 10ms
+    on_press:
+      - switch.toggle:
+          id: relay_1
+
+  - platform: gpio
+    name: ${device_name}_status
+    pin: GPIO04
+    id: switch_1
+    on_press:
+      then:
+        - switch.toggle:
+            id: relay_1
+    on_release:
+      then:
+        - switch.toggle:
+            id: relay_1
+
+switch:
+  - platform: gpio
+    name: ${device_name}_switch
+    icon: "mdi: lightbulb_outline"
+    pin: GPIO12
+    id: relay_1
+    restore_mode: restore_default_off
+
+status_led:
+  pin:
+    number: GPIO13
+    inverted: true
+
+output:
+  - platform: esp8266_pwm
+    id: blue_led
+    pin: GPIO13
+    inverted: True
+
+light:
+  - platform: monochromatic
+    name: ${device_name}_blueled
+    output: blue_led
+
+sensor:
+  - platform: wifi_signal
+    name: "${device_name} WiFi Signal Sensor"
+    update_interval: 60s
+

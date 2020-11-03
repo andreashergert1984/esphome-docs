@@ -1,0 +1,63 @@
+esphome:
+  name: badezimmer
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: "buttersIOT"
+  password: "53a7de36b0d2244fa59056227b"
+  power_save_mode: high
+  domain: .butters.iot
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Badezimmer Fallback Hotspot"
+    password: "3mvkGGJ6oht3"
+
+captive_portal:
+
+# Enable logging
+logger:
+  hardware_uart: UART1
+  baud_rate: 0
+  level: VERBOSE
+  logs:
+    mqtt.component: DEBUG
+    mqtt.client: ERROR
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 0s
+
+ota:
+
+switch:
+  - platform: restart
+    name: "Badezimmer Sensor Restart"
+sensor:
+  - platform: wifi_signal
+    name: "Badezimmer Sensor WiFi Signal Sensor"
+    update_interval: 60s
+  - platform: am2320
+    setup_priority: -100
+    temperature:
+      name: "Badezimmer Room Temperature"
+    humidity:
+      name: "Badezimmer Room Humidity"
+    update_interval: 60s
+web_server:
+  port: 80
+
+mqtt:
+  broker: 192.168.234.40
+  will_message:
+    topic: badezimmer/status
+    payload: online
+i2c:
+  sda: 1
+  scl: 2
+  scan: False
+
+deep_sleep:
+  run_duration: 10s
+  sleep_duration: 5min

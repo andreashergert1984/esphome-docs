@@ -1,0 +1,65 @@
+esphome:
+  name: powermeter
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: "buttersIOT"
+  password: "53a7de36b0d2244fa59056227b"
+  power_save_mode: high
+  domain: .butters.iot
+#  reboot_timeout: 0s
+  fast_connect: on
+  manual_ip:
+    static_ip: 192.168.10.106
+    gateway: 192.168.10.1
+    subnet: 255.255.255.0
+    dns1: 192.168.10.1
+  
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+#  ap:
+#    ssid: "Powermeter Fallback Hotspot"
+#    password: "KjVQnIfvwUiJ"
+
+captive_portal:
+
+# Enable logging
+#logger:
+#  hardware_uart: UART1
+#  baud_rate: 115200
+#  level: VERBOSE
+#  logs:
+#    mqtt.component: DEBUG
+#    mqtt.client: ERROR
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 0s
+
+ota:
+switch:
+  - platform: restart
+    name: "Power Meter Restart"
+sensor:
+  - platform: wifi_signal
+    name: "Power Meter WiFi Signal Sensor"
+    update_interval: 60s
+  - platform: pulse_counter
+    pin:
+      number: 1
+      mode: INPUT_PULLUP
+    count_mode:
+      rising_edge: DISABLE
+      falling_edge: INCREMENT
+    internal_filter: 10ms
+    unit_of_measurement: 'W'
+    name: 'House Input Power'
+    filters:
+      - multiply: 60
+
+web_server:
+  port: 80
+
+#mqtt:
+#  broker: 192.168.234.40

@@ -1,0 +1,117 @@
+substitutions:
+  device_name: luftungspeisekammer
+  device_ip: 192.168.10.144
+
+esphome:
+  name: ${device_name}
+  platform: ESP8266
+  board: esp12e
+
+wifi:
+  ssid: buttersIOT
+  password: 53a7de36b0d2244fa59056227b
+  power_save_mode: high
+  domain: .butters.iot
+  manual_ip:
+    static_ip: ${device_ip}
+    gateway: 192.168.10.1
+    subnet: 255.255.255.0
+
+  
+api:
+  reboot_timeout: 15min
+  password: ZNMyUA9crUGhWLPMUFhc
+  services:
+    - service: control_servo
+      variables:
+        level: float
+      then:
+        - servo.write:
+            id: my_servo
+            level: !lambda 'return level / 100.0;'          
+
+captive_portal:
+
+# Enable logging
+logger:
+
+
+ota:
+
+i2c:
+  sda: 4
+  scl: 5
+  scan: True
+  id: bus_a
+
+pca9685:
+  i2c_id: bus_a
+  frequency: 500
+
+
+# Individual outputs
+output:
+  - platform: pca9685
+    id: 'pca9685_output1'
+    channel: 0
+  - platform: pca9685
+    id: 'pca9685_output2'
+    channel: 1
+  - platform: pca9685
+    id: 'pca9685_output9'
+    channel: 8
+  - platform: pca9685
+    id: 'pca9685_output10'
+    channel: 9
+  - platform: pca9685
+    id: 'pca9685_output11'
+    channel: 10
+
+fan:
+  - platform: speed
+    output: pca9685_output1
+    name: "Waschkammer Fan"
+  - platform: speed
+    output: pca9685_output2
+    name: "Keller Zuluft Fan"
+    
+sensor:
+  - platform: wifi_signal
+    name: "${device_name} WiFi Signal Sensor"
+    update_interval: 60s
+  - platform: pulse_counter
+    pin:
+      number: 12
+      inverted: false
+      mode: INPUT
+    name: "Waschkammer Fan RPM"
+    unit_of_measurement: 'RPM'
+    filters:
+      - multiply: 0.25
+    count_mode:
+      rising_edge: INCREMENT
+      falling_edge: DISABLE
+    update_interval: 30s
+    internal_filter: 1us
+  - platform: pulse_counter
+    pin:
+      number: 13
+      inverted: false
+      mode: INPUT
+    name: "Keller Zuluft Fan RPM"
+    unit_of_measurement: 'RPM'
+    filters:
+      - multiply: 0.25
+    count_mode:
+      rising_edge: INCREMENT
+      falling_edge: DISABLE
+    update_interval: 30s
+    internal_filter: 1us
+
+servo:
+  - id: my_servo
+    output: pca9685_output9
+    min_level: 49%
+    idle_level: 50%
+    max_level: 99%
+    

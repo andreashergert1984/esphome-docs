@@ -1,0 +1,78 @@
+esphome:
+  name: kaminluft
+  platform: ESP8266
+  board: esp01
+
+wifi:
+  ssid: "buttersIOT"
+  password: "53a7de36b0d2244fa59056227b"
+  power_save_mode: high
+  domain: .butters.iot
+
+# Enable logging
+logger:
+  hardware_uart: UART1
+  baud_rate: 115200
+  level: VERBOSE
+  logs:
+    mqtt.component: DEBUG
+    mqtt.client: ERROR
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 0s
+
+ota:
+switch:
+  - platform: restart
+    name: "Kamin Luft Restart"
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal Sensor"
+    update_interval: 60s
+  - platform: am2320
+    setup_priority: -800
+    i2c_id: bus_a
+    temperature:
+      name: "Kamin Luft Temperature"
+      id: am23200_temp
+    humidity:
+      name: "Kamin Luft Humidity"
+      id: am23200_hum
+    update_interval: 10s
+    id: am23200
+  - platform: bmp280
+    i2c_id: bus_a
+    temperature:
+      name: "Kamin Luft BMP Temperature"
+      oversampling: 16x
+    pressure:
+      name: "Kamin Luft Druck"
+    address: 0x76
+    update_interval: 10s
+  - platform: ccs811
+    i2c_id: bus_a
+    eco2:
+      name: "CCS811 eCO2 Value"
+      filters:
+        - filter_out: 65021
+    tvoc:
+      name: "CCS811 Total Volatile Organic Compound"
+      filters:
+        - filter_out: 65021
+    address: 0x5A
+    temperature: am23200_temp
+    humidity: am23200_hum
+    update_interval: 10s
+i2c:
+  - sda: 3
+    scl: 1
+    scan: False
+    id: bus_a
+    frequency: 400kHz
+
+web_server:
+  port: 80
+
+mqtt:
+  broker: 192.168.234.40
